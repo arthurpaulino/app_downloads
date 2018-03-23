@@ -8,7 +8,7 @@ import gc
 
 raw_start = time.time()
 
-data_perc = 0.1
+data_perc = 1.0
 use_gpu = False
 
 start = time.time()
@@ -37,19 +37,19 @@ print('{:.2f}s to split data in train/test'.format(time.time()-start))
 
 # https://github.com/dmlc/xgboost/blob/master/doc/parameter.md
 xgb_params = {
-    'eta': 0.3,
+    'eta': 0.2,
     'max_leaves': 2048,
-    'subsample': 0.7,
+    'subsample': 0.9,
     'colsample_bytree': 0.7,
     'colsample_bylevel':0.7,
     'min_child_weight':0,
-    'alpha':5,
-    'scale_pos_weight':unbalance_factor,
+    'alpha': 4,
+    'max_depth': 0,
+    'scale_pos_weight': unbalance_factor,
     'eval_metric': 'auc',
     'random_state': int(time.time()),
-    'nthread':4,
+    'nthread': 4,
     'silent': True,
-    'max_depth': 0,
     'grow_policy': 'lossguide',
     'tree_method': 'hist',
     'predictor': 'cpu_predictor',
@@ -70,19 +70,19 @@ print('{:.2f}s to create xgboost data structures'.format(time.time()-start))
 watchlist = [(dtrain, 'training'), (dvalid, 'validation')]
 
 start = time.time()
-model = xgb.train(xgb_params, dtrain, 300, watchlist, maximize=True, early_stopping_rounds = 25, verbose_eval=5)
+model = xgb.train(xgb_params, dtrain, 1000, watchlist, maximize=True, early_stopping_rounds = 25, verbose_eval=5)
 del dvalid, dtrain
 gc.collect()
 print('{:.2f}s to perform training'.format(time.time()-start))
 
 start = time.time()
-_, ax = plt.subplots(figsize=(20,8))
+_, ax = plt.subplots(figsize=(20,15))
 xgb.plot_importance(model, ax=ax)
-plt.savefig('output/model.png')
+plt.savefig('intermediary/model.png')
 print('{:.2f}s to save feature importance plot'.format(time.time()-start))
 
 start = time.time()
-pickle.dump(model, open("output/model.xgb", "wb"))
+pickle.dump(model, open("intermediary/model.xgb", "wb"))
 print('{:.2f}s to save model to hd'.format(time.time()-start))
 
 print('{:.2f}s to run script'.format(time.time()-raw_start))

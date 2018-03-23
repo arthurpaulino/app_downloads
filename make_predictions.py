@@ -19,7 +19,7 @@ del data_test
 gc.collect()
 print('{:.2f}s to create xgboost data structure'.format(time.time()-start))
 
-model = pickle.load(open("output/model.xgb", "rb"))
+model = pickle.load(open("intermediary/model.xgb", "rb"))
 
 start = time.time()
 submission['is_attributed'] = model.predict(dtest, ntree_limit=model.best_ntree_limit)
