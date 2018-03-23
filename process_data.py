@@ -23,7 +23,8 @@ data_perc = 0.3
 
 
 # reading raw data
-train_size = int(data_perc*184903890)
+train_size_total = 184903890
+train_size = int(data_perc*train_size_total)
 start = time.time()
 skiprows = range(1,train_size_total-train_size+1) if data_perc < 1.0 else None
 data_train = pd.read_csv('input/train.csv', usecols=train_columns, parse_dates=['click_time'], dtype=dtypes, nrows=train_size, skiprows = skiprows)
