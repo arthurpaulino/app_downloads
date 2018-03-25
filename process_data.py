@@ -18,7 +18,7 @@ dtypes = {
 }
 
 # 0 < data_perc <= 1.0
-data_perc = 0.1
+data_perc = 0.2
 
 
 # reading raw data
@@ -26,11 +26,13 @@ train_size_total = 184903890
 train_size = int(data_perc*train_size_total)
 start = time.time()
 skiprows = range(1,train_size_total-train_size+1) if data_perc < 1.0 else None
-data_train = pd.read_csv('input/train.csv', usecols=train_columns, parse_dates=['click_time'], dtype=dtypes, nrows=train_size, skiprows = skiprows)
+print('reading input/train.csv')
+data_train = pd.read_csv('input/train.csv', usecols=train_columns, dtype=dtypes, parse_dates=['click_time'], nrows=train_size, skiprows=skiprows)
 print('{:.2f}s to load train data'.format(time.time()-start))
 
 start = time.time()
-data_test = pd.read_csv('input/test.csv', usecols=test_columns, parse_dates=['click_time'], dtype=dtypes)
+print('reading input/test.csv')
+data_test = pd.read_csv('input/test.csv', usecols=test_columns, dtype=dtypes, parse_dates=['click_time'])
 print('{:.2f}s to load test data'.format(time.time()-start))
 
 
@@ -39,6 +41,8 @@ def get_processed_data(data_train, data_test):
     start = time.time()
     train_size = data_train.shape[0]
     combine = pd.concat([data_train, data_test])
+    combine['click_id'] = combine['click_id'].fillna(0).astype('uint32')
+    combine['is_attributed'] = combine['is_attributed'].fillna(0).astype('uint8')
     del data_train, data_test
     gc.collect()
     print('{:.2f}s to concatenate train/test data'.format(time.time()-start))
@@ -53,10 +57,8 @@ def get_processed_data(data_train, data_test):
 
     return (data_train, data_test)
 
-
 start = time.time()
 data_train, data_test = get_processed_data(data_train, data_test)
-data_test['click_id'] = data_test['click_id'].astype('uint32')
 process_time = time.time()-start
 print('{:.2f}s to process data ({:.2f} lines/s)'.format(process_time, (data_train.shape[0]+data_test.shape[0])/process_time))
 
@@ -66,14 +68,12 @@ start = time.time()
 data_train.to_csv('input/train_processed.csv', index=False)
 del data_train
 gc.collect()
-process_time = time.time()-start
-print('{:.2f}s to write to csv ({:.2f} lines/s)'.format(process_time, data_train.shape[0]/process_time))
+print('{:.2f}s to create input/train_processed.csv'.format(time.time()-start))
 
 start = time.time()
 data_test.to_csv('input/test_processed.csv', index=False)
 del data_test
 gc.collect()
-process_time = time.time()-start
-print('{:.2f}s to write to csv ({:.2f} lines/s)'.format(process_time, data_test.shape[0]/process_time))
+print('{:.2f}s to create input/test_processed.csv'.format(time.time()-start))
 
 print('{:.2f}s to run script'.format(time.time()-raw_start))
