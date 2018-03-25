@@ -20,17 +20,13 @@ def transform(df):
     gc.collect()
     print('{:.2f}s to generate feature hour'.format(time.time()-start))
 
-    groupbys = [['ip', 'app'], ['ip', 'os', 'app'], ['ip', 'channel', 'app']]
+    groupbys = [['ip', 'os', 'hour'], ['ip', 'hour']]
     generate_count_features(df, groupbys)
 
-    groupbys = [['ip'], ['ip', 'os'], ['ip', 'channel']]
+    groupbys = [['ip'],        ['ip', 'os'],        ['ip', 'channel'],
+                ['ip', 'app'], ['ip', 'os', 'app'], ['ip', 'channel', 'app']]
     generate_count_features(df, groupbys)
-    
-    groupbys = [['ip', 'os', 'hour']]
-    generate_count_features(df, groupbys)
-    
-    groupbys = [['ip', 'hour']]
-    generate_count_features(df, groupbys)
+
     df.drop(columns=['ip'], inplace=True)
     gc.collect()
 

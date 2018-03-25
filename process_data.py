@@ -18,7 +18,7 @@ dtypes = {
 }
 
 # 0 < data_perc <= 1.0
-data_perc = 0.2
+data_perc = 0.1
 
 
 # reading raw data
