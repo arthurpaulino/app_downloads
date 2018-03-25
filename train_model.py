@@ -67,8 +67,8 @@ del X_train, y_train
 gc.collect()
 print('{:.2f}s to create xgboost data structures'.format(time.time()-start))
 
-# watch accuracy in training and validation
-watchlist = [(dtrain, 'training'), (dvalid, 'validation')]
+# watch accuracy in validation set
+watchlist = [(dvalid, 'validation')]
 
 start = time.time()
 model = xgb.train(xgb_params, dtrain, 300, watchlist, maximize=True, early_stopping_rounds = 25, verbose_eval=5)
