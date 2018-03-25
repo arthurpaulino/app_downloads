@@ -29,6 +29,6 @@ print('{:.2f}s to make predictions'.format(time.time()-start))
 
 start = time.time()
 submission.to_csv('output/submission.csv', index=False)
-print('{:.2f}s to load train data'.format(time.time()-start))
+print('{:.2f}s to write submission'.format(time.time()-start))
 
 print('{:.2f}s to run script'.format(time.time()-raw_start))
