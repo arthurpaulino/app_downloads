@@ -31,10 +31,8 @@ def sort_features_by_attr_proba(df, features):
         del scores
         gc.collect()
 
-        sequenced_ids = [i+1 for i in range(len(sorted_ids))]
-
-        df[feature].replace(sorted_ids, sequenced_ids, inplace=True)
-        del sorted_ids, sequenced_ids
+        df[feature] = df[feature].apply(lambda x: sorted_ids.index(x)).astype('uint16')
+        del sorted_ids
         gc.collect()
 
         print('{:.2f}s to sort {}'.format(time.time()-start, feature))
