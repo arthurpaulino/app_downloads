@@ -38,12 +38,14 @@ print('{:.2f}s to split data in train/test'.format(time.time()-start))
 # https://github.com/dmlc/xgboost/blob/master/doc/parameter.md
 xgb_params = {
     'eta': 0.1,
-    'max_leaves': 1024,
+    'max_leaves': 2048,
     'subsample': 0.9,
-    'colsample_bytree': 0.7,
-    'colsample_bylevel':0.7,
-    'min_child_weight':0,
-    'alpha': 3,
+    'colsample_bytree': 0.8,
+    'colsample_bylevel':0.8,
+	'max_delta_step': 2,
+    'min_child_weight':2,
+    'alpha': 2,
+	'gamma ': 2,
     'max_depth': 0,
     'scale_pos_weight': unbalance_factor,
     'eval_metric': 'auc',
@@ -59,11 +61,11 @@ if use_gpu:
     xgb_params.update({'tree_method':'gpu_hist', 'predictor':'gpu_predictor', 'objective':'gpu:binary:logistic'})
 
 start = time.time()
-dvalid = xgb.DMatrix(X_test, y_test)
-del X_test, y_test
-gc.collect()
 dtrain = xgb.DMatrix(X_train, y_train)
 del X_train, y_train
+gc.collect()
+dvalid = xgb.DMatrix(X_test, y_test)
+del X_test, y_test
 gc.collect()
 print('{:.2f}s to create xgboost data structures'.format(time.time()-start))
 
@@ -71,7 +73,7 @@ print('{:.2f}s to create xgboost data structures'.format(time.time()-start))
 watchlist = [(dvalid, 'validation')]
 
 start = time.time()
-model = xgb.train(xgb_params, dtrain, 300, watchlist, maximize=True, early_stopping_rounds = 25, verbose_eval=5)
+model = xgb.train(xgb_params, dtrain, 200, watchlist, maximize=True, early_stopping_rounds = 25, verbose_eval=5)
 del dvalid, dtrain
 gc.collect()
 print('{:.2f}s to perform training'.format(time.time()-start))
@@ -79,7 +81,7 @@ print('{:.2f}s to perform training'.format(time.time()-start))
 start = time.time()
 _, ax = plt.subplots(figsize=(15,5))
 xgb.plot_importance(model, ax=ax)
-plt.savefig('intermediary/model.png')
+plt.savefig('intermediary/model_'+str(int(time.time()))+'.png')
 print('{:.2f}s to save feature importance plot'.format(time.time()-start))
 
 start = time.time()

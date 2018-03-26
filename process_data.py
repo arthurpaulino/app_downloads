@@ -6,19 +6,20 @@ import gc
 
 raw_start = time.time()
 
-train_columns = ['ip', 'app', 'os', 'channel', 'click_time', 'is_attributed']
-test_columns  = ['ip', 'app', 'os', 'channel', 'click_time', 'click_id']
+train_columns = ['ip', 'app', 'os', 'device', 'channel', 'click_time', 'is_attributed']
+test_columns  = ['ip', 'app', 'os', 'device', 'channel', 'click_time', 'click_id']
 dtypes = {
     'ip'            : 'uint32',
     'app'           : 'uint16',
     'os'            : 'uint16',
+    'device'        : 'uint16',
     'channel'       : 'uint16',
     'is_attributed' : 'uint8',
     'click_id'      : 'uint32'
 }
 
 # 0 < data_perc <= 1.0
-data_perc = 0.1
+data_perc = 0.3
 
 
 # reading raw data

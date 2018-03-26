@@ -40,28 +40,30 @@ def sort_features_by_attr_proba(df, features):
 def generate_count_features(df, groupbys):
     for groupby in groupbys:
         print('--- grouping by {}'.format(groupby))
-        prefix = '_'.join(groupby)+'_'
+        suffix = '_'+('_'.join(groupby))
 
         start = time.time()
-        df[prefix+'clicks'] = df.groupby(groupby)['ip'].transform('count').astype('uint32')
+        df['n'+suffix] = df.groupby(groupby)['ip'].transform('count').astype('uint32')
         gc.collect()
-        print('{:.2f}s to generate feature {}'.format(time.time()-start, prefix+'clicks'))
+        print('{:.2f}s to generate feature {}'.format(time.time()-start, 'n'+suffix))
 
 def transform(df):
 
-    sort_features_by_attr_proba(df, ['app', 'os', 'channel'])
+    sort_features_by_attr_proba(df, ['app', 'os', 'device', 'channel'])
 
     start = time.time()
     df['hour'] = pd.to_datetime(df['click_time']).dt.hour.astype('uint8')
+    # TODO: combine hour and day
     df.drop(columns=['click_time'], inplace=True)
     gc.collect()
     print('{:.2f}s to generate feature hour'.format(time.time()-start))
 
-    groupbys = [['ip', 'os', 'hour'], ['ip', 'hour']]
-    generate_count_features(df, groupbys)
-
-    groupbys = [['ip'],        ['ip', 'os'],        ['ip', 'channel'],
-                ['ip', 'app'], ['ip', 'os', 'app'], ['ip', 'channel', 'app']]
+    groupbys = [['ip'],
+                ['ip', 'app'], ['ip', 'os'], ['ip', 'device'], ['ip', 'channel'], ['ip', 'hour'],
+                ['ip', 'app', 'os'], ['ip', 'app', 'device'], ['ip', 'app', 'channel'], ['ip', 'app', 'hour'],
+                ['ip', 'os', 'device'], ['ip', 'os', 'channel'], ['ip', 'os', 'hour'],
+                ['ip', 'device', 'channel'], ['ip', 'device', 'hour'],
+                ['ip', 'channel', 'hour']]
     generate_count_features(df, groupbys)
 
     df.drop(columns=['ip'], inplace=True)
