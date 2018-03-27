@@ -30,9 +30,15 @@ def sort_features_by_attr_proba(df, features):
         sorted_ids = sorted(feature_ids, key=lambda feature_id: scores[feature_id], reverse=True)
         del scores
         gc.collect()
+        
+        indexes = {}
+        for feature_id in feature_ids:
+            indexes[feature_id] = sorted_ids.index(feature_id)
+		del feature_ids, sorted_ids
+		gc.collect()
 
-        df[feature] = df[feature].apply(lambda x: sorted_ids.index(x)).astype('uint16')
-        del sorted_ids
+        df[feature] = df[feature].apply(lambda x: indexes[x]).astype('uint16')
+        del indexes
         gc.collect()
 
         print('{:.2f}s to sort {}'.format(time.time()-start, feature))
@@ -48,25 +54,14 @@ def generate_count_features(df, groupbys):
         print('{:.2f}s to generate feature {}'.format(time.time()-start, 'n'+suffix))
 
 def transform(df):
-
     sort_features_by_attr_proba(df, ['app', 'os', 'device', 'channel'])
 
     start = time.time()
     df['hour'] = pd.to_datetime(df['click_time']).dt.hour.astype('uint8')
-    # TODO: combine hour and day
-    df.drop(columns=['click_time'], inplace=True)
-    gc.collect()
     print('{:.2f}s to generate feature hour'.format(time.time()-start))
 
-    groupbys = [['ip'],
-                ['ip', 'app'], ['ip', 'os'], ['ip', 'device'], ['ip', 'channel'], ['ip', 'hour'],
-                ['ip', 'app', 'os'], ['ip', 'app', 'device'], ['ip', 'app', 'channel'], ['ip', 'app', 'hour'],
-                ['ip', 'os', 'device'], ['ip', 'os', 'channel'], ['ip', 'os', 'hour'],
-                ['ip', 'device', 'channel'], ['ip', 'device', 'hour'],
-                ['ip', 'channel', 'hour']]
+    groupbys = [['ip'], ['ip', 'app'], ['ip', 'os'], ['ip', 'device'],
+	            ['ip', 'app', 'hour'], ['ip', 'os', 'hour'], ['ip', 'device', 'hour']]
     generate_count_features(df, groupbys)
-
-    df.drop(columns=['ip'], inplace=True)
-    gc.collect()
 
     print('new dataframe shape: {}'.format(df.shape))

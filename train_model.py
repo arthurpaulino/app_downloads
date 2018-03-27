@@ -12,12 +12,12 @@ data_perc = 1.0
 use_gpu = False
 
 start = time.time()
-train_size_total = sum(1 for line in open('input/train_processed.csv'))-1
+train_size_total = sum(1 for line in open('intermediary/train_processed.csv'))-1
 print('{:.2f}s to count training rows'.format(time.time()-start))
 
 start = time.time()
 train_size = int(data_perc*train_size_total)
-data_train = pd.read_csv('input/train_processed.csv', nrows=train_size)
+data_train = pd.read_csv('intermediary/train_processed.csv', nrows=train_size)
 print('{:.2f}s to load train data'.format(time.time()-start))
 
 X = data_train.drop(columns=['is_attributed'])
@@ -38,14 +38,14 @@ print('{:.2f}s to split data in train/test'.format(time.time()-start))
 # https://github.com/dmlc/xgboost/blob/master/doc/parameter.md
 xgb_params = {
     'eta': 0.1,
-    'max_leaves': 2048,
+    'max_leaves': 1024,
     'subsample': 0.9,
-    'colsample_bytree': 0.8,
-    'colsample_bylevel':0.8,
-	'max_delta_step': 2,
+    'colsample_bytree': 0.7,
+    'colsample_bylevel':0.7,
+	'max_delta_step': 1,
     'min_child_weight':2,
-    'alpha': 2,
-	'gamma ': 2,
+    'alpha': 3,
+	'gamma ': 1.2,
     'max_depth': 0,
     'scale_pos_weight': unbalance_factor,
     'eval_metric': 'auc',
