@@ -4,6 +4,8 @@ import time
 import gc
 
 def sort_features_by_attr_proba(df, features):
+    sorted_features = {}
+
     for feature in features:
         print('--- sorting {}'.format(feature))
         start = time.time()
@@ -30,7 +32,7 @@ def sort_features_by_attr_proba(df, features):
         sorted_ids = sorted(feature_ids, key=lambda feature_id: scores[feature_id], reverse=True)
         del scores
         gc.collect()
-        
+
         indexes = {}
         for feature_id in feature_ids:
             indexes[feature_id] = sorted_ids.index(feature_id)
@@ -38,10 +40,11 @@ def sort_features_by_attr_proba(df, features):
 		gc.collect()
 
         df[feature] = df[feature].apply(lambda x: indexes[x]).astype('uint16')
-        del indexes
-        gc.collect()
+        sorted_features[feature] = indexes
 
         print('{:.2f}s to sort {}'.format(time.time()-start, feature))
+
+    return sorted_features
 
 def generate_count_features(df, groupbys):
     for groupby in groupbys:
@@ -54,8 +57,6 @@ def generate_count_features(df, groupbys):
         print('{:.2f}s to generate feature {}'.format(time.time()-start, 'n'+suffix))
 
 def transform(df):
-    sort_features_by_attr_proba(df, ['app', 'os', 'device', 'channel'])
-
     start = time.time()
     df['hour'] = pd.to_datetime(df['click_time']).dt.hour.astype('uint8')
     print('{:.2f}s to generate feature hour'.format(time.time()-start))
@@ -64,4 +65,6 @@ def transform(df):
 	            ['ip', 'app', 'hour'], ['ip', 'os', 'hour'], ['ip', 'device', 'hour']]
     generate_count_features(df, groupbys)
 
-    print('new dataframe shape: {}'.format(df.shape))
+    sorted_features = sort_features_by_attr_proba(df, ['app', 'os', 'device', 'channel'])
+
+    return sorted_features

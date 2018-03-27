@@ -19,7 +19,7 @@ dtypes = {
 }
 
 # 0 < data_perc <= 1.0
-data_perc = 0.2
+data_perc = 0.01
 
 
 # reading raw data
@@ -48,7 +48,7 @@ def get_processed_data(data_train, data_test):
     gc.collect()
     print('{:.2f}s to concatenate train/test data'.format(time.time()-start))
 
-    transform(combine)
+    sorted_features = transform(combine)
 
     data_train = combine[:train_size].drop(columns=['click_id', 'ip', 'click_time'])
     data_test = combine[train_size:].drop(columns=['is_attributed'])
@@ -56,10 +56,10 @@ def get_processed_data(data_train, data_test):
     del combine
     gc.collect()
 
-    return (data_train, data_test)
+    return (data_train, data_test, sorted_features)
 
 start = time.time()
-data_train, data_test = get_processed_data(data_train, data_test)
+data_train, data_test, sorted_features = get_processed_data(data_train, data_test)
 process_time = time.time()-start
 print('{:.2f}s to process data ({:.2f} lines/s)'.format(process_time, (data_train.shape[0]+data_test.shape[0])/process_time))
 
@@ -75,6 +75,10 @@ print('{:.2f}s to create intermediary/train_processed.csv'.format(time.time()-st
 
 start = time.time()
 data_submission = pd.read_csv('input/test.csv')
+for feature in sorted_features:
+    indexes = sorted_features[feature]
+    data_submission[feature] = data_submission[feature].apply(lambda x: indexes[x]).astype('uint16')
+
 data_test = pd.merge(data_submission, data_test, how='inner', on=['ip', 'app', 'device', 'os', 'channel', 'click_time']) \
               .drop(columns=['ip', 'click_time', 'click_id_y']) \
               .drop_duplicates(subset=['click_id_x']) \
