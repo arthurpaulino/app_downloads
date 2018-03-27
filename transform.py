@@ -36,8 +36,8 @@ def sort_features_by_attr_proba(df, features):
         indexes = {}
         for feature_id in feature_ids:
             indexes[feature_id] = sorted_ids.index(feature_id)
-		del feature_ids, sorted_ids
-		gc.collect()
+        del feature_ids, sorted_ids
+        gc.collect()
 
         df[feature] = df[feature].apply(lambda x: indexes[x]).astype('uint16')
         sorted_features[feature] = indexes
