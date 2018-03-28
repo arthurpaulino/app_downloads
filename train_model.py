@@ -11,13 +11,17 @@ raw_start = time.time()
 data_perc = 1.0
 use_gpu = False
 
-start = time.time()
-train_size_total = sum(1 for line in open('intermediary/train_processed.csv'))-1
-print('{:.2f}s to count training rows'.format(time.time()-start))
+if data_perc < 1.0:
+    start = time.time()
+    train_size_total = sum(1 for line in open('intermediary/train_processed.csv'))-1
+    print('{:.2f}s to count training rows'.format(time.time()-start))
 
 start = time.time()
-train_size = int(data_perc*train_size_total)
-data_train = pd.read_csv('intermediary/train_processed.csv', nrows=train_size)
+if data_perc < 1.0:
+    train_size = int(data_perc*train_size_total)
+    data_train = pd.read_csv('intermediary/train_processed.csv', nrows=train_size)
+else:
+    data_train = pd.read_csv('intermediary/train_processed.csv')
 print('{:.2f}s to load train data'.format(time.time()-start))
 
 X = data_train.drop(columns=['is_attributed'])

@@ -8,7 +8,7 @@ raw_start = time.time()
 
 start = time.time()
 data_test = pd.read_csv('intermediary/test_processed.csv')
-print('{:.2f}s to read test data'.format(time.time()-start))
+print('{:.2f}s to load test data'.format(time.time()-start))
 
 submission = pd.DataFrame()
 submission['click_id'] = data_test['click_id'].astype(int)
