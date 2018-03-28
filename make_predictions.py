@@ -36,4 +36,4 @@ start = time.time()
 submission.to_csv('output/submission_'+str(int(time.time()))+'.csv', index=False)
 print('{:.2f}s to write submission'.format(time.time()-start))
 
-print('{:.2f}s to run script'.format(time.time()-raw_start))
+print('{:.2f}s to make predictions'.format(time.time()-raw_start))

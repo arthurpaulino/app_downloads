@@ -6,10 +6,10 @@ import pickle
 import time
 import gc
 
-raw_start = time.time()
-
 data_perc = 1.0
 use_gpu = False
+
+raw_start = time.time()
 
 if data_perc < 1.0:
     start = time.time()
@@ -46,10 +46,8 @@ xgb_params = {
     'subsample': 0.9,
     'colsample_bytree': 0.7,
     'colsample_bylevel':0.7,
-	'max_delta_step': 1,
-    'min_child_weight':2,
+    'min_child_weight':0,
     'alpha': 3,
-	'gamma ': 1.2,
     'max_depth': 0,
     'scale_pos_weight': unbalance_factor,
     'eval_metric': 'auc',
@@ -92,4 +90,4 @@ start = time.time()
 pickle.dump(model, open("intermediary/model.xgb", "wb"))
 print('{:.2f}s to save model to hd'.format(time.time()-start))
 
-print('{:.2f}s to run script'.format(time.time()-raw_start))
+print('{:.2f}s to train model'.format(time.time()-raw_start))
