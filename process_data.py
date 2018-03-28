@@ -8,6 +8,21 @@ use_supplement = True
 
 raw_start = time.time()
 
+def compute_score(df, feature, feature_id):
+    attrs = df[(df[feature]==feature_id) & (df['is_attributed']==1)]
+    n_attrs = attrs.shape[0]
+    del attrs
+    gc.collect()
+
+    clicks = df[df[feature]==feature_id]
+    n_clicks = clicks.shape[0]
+    del clicks
+    gc.collect()
+
+    if n_attrs==0:
+        return -n_clicks
+    return n_attrs/n_clicks
+
 def sort_features_by_attr_proba(df, features):
     sorted_features = {}
 
@@ -15,25 +30,10 @@ def sort_features_by_attr_proba(df, features):
         print('\n--- sorting {}'.format(feature))
         start = time.time()
 
-        def compute_score(feature_id):
-            attrs = df[(df[feature]==feature_id) & (df['is_attributed']==1)]
-            n_attrs = attrs.shape[0]
-            del attrs
-            gc.collect()
-
-            clicks = df[df[feature]==feature_id]
-            n_clicks = clicks.shape[0]
-            del clicks
-            gc.collect()
-
-            if n_attrs==0:
-                return -n_clicks
-            return n_attrs/n_clicks
-
         scores = {}
         feature_ids = set(df[feature])
         for feature_id in feature_ids:
-            scores[feature_id] = compute_score(feature_id)
+            scores[feature_id] = compute_score(df, feature, feature_id)
         sorted_ids = sorted(feature_ids, key=lambda feature_id: scores[feature_id], reverse=True)
         del scores
         gc.collect()
