@@ -3,8 +3,8 @@ import numpy as np
 import time
 import gc
 
-data_perc = 0.2
-use_supplement = False
+data_perc = 0.22
+use_supplement = True
 
 raw_start = time.time()
 
@@ -66,11 +66,15 @@ def transform(df):
     df['hour'] = pd.to_datetime(df['click_time']).dt.hour.astype('uint8')
     print('{:.2f}s to generate feature hour'.format(time.time()-start))
 
-    groupbys = [['ip'], ['ip', 'app'], ['ip', 'os'], ['ip', 'device'],
-	            ['ip', 'app', 'hour'], ['ip', 'os', 'hour'], ['ip', 'device', 'hour']]
+    groupbys = [['ip'], ['ip', 'hour'],
+                ['ip', 'app'], ['ip', 'app', 'hour'],
+	            ['ip', 'os'], ['ip', 'os', 'hour'],
+                ['ip', 'os', 'app'], ['ip', 'os', 'app', 'hour'],
+                ['ip', 'device'], ['ip', 'device', 'hour'],
+                ['ip', 'device', 'app'], ['ip', 'device', 'app', 'hour'],
+                ['ip', 'channel'], ['ip', 'channel', 'hour'],
+                ['ip', 'channel', 'app'], ['ip', 'channel', 'app', 'hour']]
     generate_count_features(df, groupbys)
-    
-    df.drop(columns=['hour'], inplace=True)
 
     sorted_features = sort_features_by_attr_proba(df, ['app', 'os', 'device', 'channel'])
 
