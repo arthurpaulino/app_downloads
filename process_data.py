@@ -3,7 +3,7 @@ import numpy as np
 import time
 import gc
 
-data_perc = 0.18
+data_perc = 0.20
 use_supplement = True
 
 raw_start = time.time()
@@ -63,23 +63,30 @@ def generate_count_features(df, groupbys):
 
 def transform(df):
     start = time.time()
-    df['1s'] = pd.to_datetime(df['click_time']).dt.timestamp().astype('uint32')
-    df['10s'] = df['1s'] - df['1s']%10
-    df['60s'] - df['1s']%360
-    df['360s'] = df['1s'] - df['1s']%360
-    print('{:.2f}s to generate feature hour'.format(time.time()-start))
-
-    groupbys = [['ip'], ['ip', '1s'], ['ip', '10s'], ['ip', '60s'], ['ip', '360s'],
-                ['ip', 'os'], ['ip', 'os', '1s'], ['ip', 'os', '10s'], ['ip', 'os', '60s'], ['ip', 'os', '360s'],
-                ['ip', 'device'], ['ip', 'device', '1s'], ['ip', 'device', '10s'], ['ip', 'device', '60s'], ['ip', 'os', '360s'],
-                ['ip', 'app'], ['ip', 'app', '1s'], ['ip', 'app', '10s'], ['ip', 'app', '60s'], ['ip', 'app', '360s'],
-                ['ip', 'channel'], ['ip', 'channel', '1s'], ['ip', 'channel', '10s'], ['ip', 'channel', '60s'], ['ip', 'channel', '360s'],
-                ['ip', 'os', 'device'], ['ip', 'os', 'device', '1s'], ['ip', 'os', 'device', '10s'], ['ip', 'os', 'device', '60s'], ['ip', 'os', 'device', '360s']]
-    generate_count_features(df, groupbys)
     
-    df.drop(columns=['1s', '10s', '60s', '360s'], inplace=True)
-
     sorted_features = sort_features_by_attr_proba(df, ['app', 'os', 'device', 'channel'])
+    
+    df['hour'] = pd.to_datetime(df['click_time']).dt.hour.astype('uint8')
+    
+    df['1s'] = pd.to_datetime(df['click_time']).dt.timestamp().astype('uint32')
+    df['2s'] = df['1s'] - df['1s']%2
+    df['10s'] = df['1s'] - df['1s']%10
+    df['11s'] = df['1s'] - df['1s']%11
+    df['60s'] = df['1s'] - df['1s']%60
+    df['61s'] = df['1s'] - df['1s']%61
+    df['360s'] = df['1s'] - df['1s']%360
+    df['361s'] = df['1s'] - df['1s']%361
+    print('{:.2f}s to generate feature hour'.format(time.time()-start))
+    
+    groupbys = [['ip'], ['ip', 'app'], ['ip', 'os'], ['ip', 'device'], ['ip', 'os', 'app'], ['ip', 'device', 'app']]
+    generate_count_features(df, groupbys)
+
+    for (delta1, delta2) in [('360s', '361s'), ('60s', '61s'), ('10s', '11s'), ('1s', '2s')]:
+        groupbys = [['ip', 'os', 'device', delta1, delta2], ['ip', 'os', delta1, delta2], ['ip', 'device', delta1, delta2], ['ip', delta1, delta2]]
+        generate_count_features(df, groupbys)
+        groupbys = [['ip', 'app', 'channel', delta1, delta2], ['ip', 'app', delta1, delta2], ['ip', 'channel', delta1, delta2]]
+        generate_count_features(df, groupbys)
+        df.drop(columns=[delta1, delta2], inplace=True)
 
     return sorted_features
 
