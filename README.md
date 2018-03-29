@@ -32,13 +32,13 @@ em seguida, os dados são combinados em um único dataframe para a realização 
 
     uma coluna `moment` é criada demarcando a quantidade de minutos corridos no dia até o instante do click. a intuição é que a probabilidade de downloads pode variar ao longo do dia
 
-3. contagens globais e temporais
+3. contagens temporais e globais
 
     segundo os agrupamentos definidos na função `transform`, novas colunas serão criadas contendo as quantidades de clicks realizados para cada combinação de elementos do agrupamento
 
-    se a contagem não envolve uma série temporal, são contabilizados os clicks de todo o dataset considerado
-
     se a contagem envolve uma série temporal, são contabilizados os clicks apenas para cada intervalo de tempo característico da série temporal do agrupamento
+
+    se a contagem não envolve uma série temporal, são contabilizados os clicks de todo o dataset considerado
 
 ## parâmetros reguláveis
 

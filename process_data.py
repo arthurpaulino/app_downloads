@@ -73,14 +73,10 @@ def transform(df):
     df['360s'] = df['1s'] - df['1s']%360 # 1 hour
     df['43200s'] = df['1s'] - df['1s']%43200 # 12 hours
 
-    groupbys = [['ip'], ['ip', 'app'],
-                ['ip', 'os'], ['ip', 'os', 'app'],
-                ['ip', 'device'], ['ip', 'device', 'app'],
-                ['ip', 'channel'], ['ip', 'channel', 'app']]
-    generate_count_features(df, groupbys)
-
     groupbys = [['ip', '1s']]
     generate_count_features(df, groupbys)
+    df.drop(columns=['1s'], inplace=True)
+    gc.collect()
 
     for delta in ['360s', '43200s']:
         groupbys = [['ip', delta], ['ip', 'app', delta],
@@ -88,8 +84,13 @@ def transform(df):
                     ['ip', 'device', delta], ['ip', 'device', 'app', delta]]
         generate_count_features(df, groupbys)
         df.drop(columns=[delta], inplace=True)
+        gc.collect()
 
-    df.drop(columns=['1s'], inplace=True)
+    groupbys = [['ip'], ['ip', 'app'],
+                ['ip', 'os'], ['ip', 'os', 'app'],
+                ['ip', 'device'], ['ip', 'device', 'app'],
+                ['ip', 'channel'], ['ip', 'channel', 'app']]
+    generate_count_features(df, groupbys)
 
     return sorted_features
 
