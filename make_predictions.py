@@ -6,6 +6,16 @@ import gc
 
 raw_start = time.time()
 
+dtypes = {}
+with open('intermediary/test_processed.csv') as f:
+    first_line = f.readline()
+    features = first_line.split(',')
+    for feature in features:
+        if feature in ['app', 'os', 'device', 'channel', 'moment']:
+            dtypes[feature] = 'uint16'
+        else:
+            dtypes[feature] = 'uint32'
+
 start = time.time()
 data_test = pd.read_csv('intermediary/test_processed.csv')
 print('{:.2f}s to load test data'.format(time.time()-start))

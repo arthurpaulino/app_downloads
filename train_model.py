@@ -11,6 +11,18 @@ use_gpu = False
 
 raw_start = time.time()
 
+dtypes = {}
+with open('intermediary/train_processed.csv') as f:
+    first_line = f.readline()
+    features = first_line.split(',')
+    for feature in features:
+        if feature=='is_attributed':
+            dtypes[feature] = 'uint8'
+        elif feature in ['app', 'os', 'device', 'channel', 'moment']:
+            dtypes[feature] = 'uint16'
+        else:
+            dtypes[feature] = 'uint32'
+
 if data_perc < 1.0:
     start = time.time()
     train_size_total = sum(1 for line in open('intermediary/train_processed.csv'))-1
@@ -19,9 +31,9 @@ if data_perc < 1.0:
 start = time.time()
 if data_perc < 1.0:
     train_size = int(data_perc*train_size_total)
-    data_train = pd.read_csv('intermediary/train_processed.csv', nrows=train_size)
+    data_train = pd.read_csv('intermediary/train_processed.csv', dtype=dtypes, nrows=train_size)
 else:
-    data_train = pd.read_csv('intermediary/train_processed.csv')
+    data_train = pd.read_csv('intermediary/train_processed.csv', dtype=dtypes)
 print('{:.2f}s to load train data'.format(time.time()-start))
 
 X = data_train.drop(columns=['is_attributed'])
@@ -34,7 +46,7 @@ gc.collect()
 print('{:.2f}s to compute unbalance factor: {}'.format(time.time()-start, unbalance_factor))
 
 start = time.time()
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
 del X, y
 gc.collect()
 print('{:.2f}s to split data in train/test'.format(time.time()-start))
@@ -47,7 +59,7 @@ xgb_params = {
     'colsample_bytree': 0.7,
     'colsample_bylevel':0.7,
     'min_child_weight':0,
-    'alpha': 3,
+    'alpha': 4,
     'max_depth': 0,
     'scale_pos_weight': unbalance_factor,
     'eval_metric': 'auc',
@@ -75,16 +87,16 @@ print('{:.2f}s to create xgboost data structures'.format(time.time()-start))
 watchlist = [(dvalid, 'validation')]
 
 start = time.time()
-model = xgb.train(xgb_params, dtrain, 200, watchlist, maximize=True, early_stopping_rounds = 25, verbose_eval=5)
+model = xgb.train(xgb_params, dtrain, 200, watchlist, early_stopping_rounds = 25, verbose_eval=5)
 del dvalid, dtrain
 gc.collect()
 print('{:.2f}s to perform training'.format(time.time()-start))
 
 start = time.time()
-_, ax = plt.subplots(figsize=(15,5))
+_, ax = plt.subplots(figsize=(15,10))
 xgb.plot_importance(model, ax=ax)
 plt.savefig('intermediary/model_'+str(int(time.time()))+'.png')
-print('{:.2f}s to save feature importance plot'.format(time.time()-start))
+print('{:.2f}s to compute fscores'.format(time.time()-start))
 
 start = time.time()
 pickle.dump(model, open("intermediary/model.xgb", "wb"))
