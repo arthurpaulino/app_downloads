@@ -8,6 +8,7 @@ import gc
 
 data_perc = 1.0
 use_gpu = False
+use_validation = False
 
 raw_start = time.time()
 
@@ -45,11 +46,12 @@ del data_train
 gc.collect()
 print('{:.2f}s to compute unbalance factor: {}'.format(time.time()-start, unbalance_factor))
 
-start = time.time()
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
-del X, y
-gc.collect()
-print('{:.2f}s to split data in train/test'.format(time.time()-start))
+if use_validation:
+    start = time.time()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
+    del X, y
+    gc.collect()
+    print('{:.2f}s to split data in train/test'.format(time.time()-start))
 
 # https://github.com/dmlc/xgboost/blob/master/doc/parameter.md
 xgb_params = {
@@ -75,22 +77,37 @@ if use_gpu:
     xgb_params.update({'tree_method':'gpu_hist', 'predictor':'gpu_predictor', 'objective':'gpu:binary:logistic'})
 
 start = time.time()
-dtrain = xgb.DMatrix(X_train, y_train)
-del X_train, y_train
-gc.collect()
-dvalid = xgb.DMatrix(X_test, y_test)
-del X_test, y_test
-gc.collect()
-print('{:.2f}s to create xgboost data structures'.format(time.time()-start))
+if use_validation:
+    dtrain = xgb.DMatrix(X_train, y_train)
+    del X_train, y_train
+    gc.collect()
+    dvalid = xgb.DMatrix(X_test, y_test)
+    del X_test, y_test
+    gc.collect()
+    print('{:.2f}s to create xgboost data structures'.format(time.time()-start))
 
-# watch accuracy in validation set
-watchlist = [(dvalid, 'validation')]
+    # watch accuracy in validation set
+    watchlist = [(dvalid, 'validation')]
 
-start = time.time()
-model = xgb.train(xgb_params, dtrain, 200, watchlist, early_stopping_rounds = 25, verbose_eval=5)
-del dvalid, dtrain
-gc.collect()
-print('{:.2f}s to perform training'.format(time.time()-start))
+    start = time.time()
+    model = xgb.train(xgb_params, dtrain, 200, watchlist, early_stopping_rounds = 25, verbose_eval=5)
+    del dtrain, dvalid
+    gc.collect()
+    print('{:.2f}s to perform training'.format(time.time()-start))
+else:
+    dtrain = xgb.DMatrix(X, y)
+    del X, y
+    gc.collect()
+    print('{:.2f}s to create xgboost data structures'.format(time.time()-start))
+
+    # watch accuracy in train set
+    watchlist = [(dtrain, 'training')]
+
+    start = time.time()
+    model = xgb.train(xgb_params, dtrain, 25, watchlist, verbose_eval=1)
+    del dtrain
+    gc.collect()
+    print('{:.2f}s to perform training'.format(time.time()-start))
 
 start = time.time()
 _, ax = plt.subplots(figsize=(15,10))
