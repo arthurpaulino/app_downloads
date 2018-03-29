@@ -12,7 +12,7 @@ o projeto é composto por 3 módulos principais:
 
 ## data story
 
-contar a história dos dados é adentrar no módulo `process_data.py` .
+contar a história dos dados é adentrar no módulo `process_data.py`.
 
 primeiramente, lê-se os dados de treinamento e de teste. para o conjunto de treinamento, os dados considerados são os mais próximos ao final do dataset.
 
