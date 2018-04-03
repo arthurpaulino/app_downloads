@@ -66,7 +66,7 @@ def transform(df):
     start = time.time()
     datetimes = pd.to_datetime(df['click_time'])
     df['moment'] = (60*datetimes.dt.hour + datetimes.dt.minute).astype('uint16')
-    print('\n{:.2f}s to generate feature hour'.format(time.time()-start))
+    print('\n{:.2f}s to generate feature moment'.format(time.time()-start))
 
     df['1s'] = ((pd.to_datetime(df['click_time']) - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')).astype('uint32')
     df['360s'] = df['1s'] - df['1s']%360 # 1 hour
