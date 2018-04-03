@@ -4,7 +4,6 @@ import time
 import gc
 
 data_perc = 0.2
-use_supplement = True
 
 raw_start = time.time()
 
@@ -115,14 +114,9 @@ print('reading input/train.csv')
 data_train = pd.read_csv('input/train.csv', usecols=train_columns, dtype=dtypes, nrows=train_size, skiprows=skiprows)
 print('{:.2f}s to load train data'.format(time.time()-start))
 
-if use_supplement:
-    test_filename = 'input/test_supplement.csv'
-else:
-    test_filename = 'input/test.csv'
-
 start = time.time()
-print('reading ' + test_filename)
-data_test = pd.read_csv(test_filename, usecols=test_columns, dtype=dtypes)
+print('reading input/test_supplement.csv')
+data_test = pd.read_csv('input/test_supplement.csv', usecols=test_columns, dtype=dtypes)
 print('{:.2f}s to load test data'.format(time.time()-start))
 
 
@@ -159,21 +153,20 @@ del data_train
 gc.collect()
 print('{:.2f}s to create intermediary/train_processed.csv'.format(time.time()-start))
 
-if use_supplement:
-    start = time.time()
-    data_submission = pd.read_csv('input/test.csv')
-    for feature in sorted_features:
-        indexes = sorted_features[feature]
-        data_submission[feature] = data_submission[feature].apply(lambda x: indexes[x]).astype('uint16')
+start = time.time()
+data_submission = pd.read_csv('input/test.csv')
+for feature in sorted_features:
+    indexes = sorted_features[feature]
+    data_submission[feature] = data_submission[feature].apply(lambda x: indexes[x]).astype('uint16')
 
-    data_test = pd.merge(data_submission, data_test, how='inner', on=['ip', 'app', 'device', 'os', 'channel', 'click_time']) \
-                  .drop(columns=['ip', 'click_time', 'click_id_y']) \
-                  .drop_duplicates(subset=['click_id_x']) \
-                  .sort_values(by=['click_id_x']) \
-                  .rename(columns={'click_id_x': 'click_id'})
-    del data_submission
-    gc.collect()
-    print('{:.2f}s to choose submission subset'.format(time.time()-start))
+data_test = pd.merge(data_submission, data_test, how='inner', on=['ip', 'app', 'device', 'os', 'channel', 'click_time']) \
+              .drop(columns=['ip', 'click_time', 'click_id_y']) \
+              .drop_duplicates(subset=['click_id_x']) \
+              .sort_values(by=['click_id_x']) \
+              .rename(columns={'click_id_x': 'click_id'})
+del data_submission
+gc.collect()
+print('{:.2f}s to choose submission subset'.format(time.time()-start))
 
 start = time.time()
 data_test.to_csv('intermediary/test_processed.csv', index=False)

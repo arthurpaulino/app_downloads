@@ -12,11 +12,9 @@ o projeto é composto por 3 módulos principais:
 
 ## parâmetros reguláveis
 
-* `process_data.py` possui as variáveis `data_perc` e `use_supplement`
+* `process_data.py` possui a variável `data_perc`
 
   * `data_perc` especifica a fração do conjunto de treinamento que será utilizada para o processamento
-
-  * `use_supplement` indica se o conjunto de teste suplementar será utilizado no processamento de dados, o que teoricamente propiciaria maior grau de verdade aos metadados mas consome bem mais memória
 
 * `train_model.py` possui as variáveis `data_perc` e `use_gpu`
 
