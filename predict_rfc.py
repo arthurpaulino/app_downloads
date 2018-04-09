@@ -1,4 +1,3 @@
-import xgboost as xgb
 import pandas as pd
 import pickle
 import time
@@ -28,22 +27,16 @@ data_test = data_test[data_train.columns]
 del data_train
 gc.collect()
 
+model = pickle.load(open("intermediary/model.rfc", "rb"))
+
 start = time.time()
-dtest = xgb.DMatrix(data_test)
+submission['is_attributed'] = model.predict_proba(data_test)
 del data_test
-gc.collect()
-print('{:.2f}s to create xgboost data structure'.format(time.time()-start))
-
-model = pickle.load(open("intermediary/model.xgb", "rb"))
-
-start = time.time()
-submission['is_attributed'] = model.predict(dtest)
-del dtest
 gc.collect()
 print('{:.2f}s to make predictions'.format(time.time()-start))
 
 start = time.time()
-submission.to_csv('output/submission_'+str(int(time.time()))+'.csv', index=False)
+submission.to_csv('output/submission_rfc_'+str(int(time.time()))+'.csv', index=False)
 print('{:.2f}s to write submission'.format(time.time()-start))
 
 print('{:.2f}s to make predictions'.format(time.time()-raw_start))

@@ -48,7 +48,7 @@ print('{:.2f}s to compute unbalance factor: {}'.format(time.time()-start, unbala
 
 if use_validation:
     start = time.time()
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, stratify=y)
     del X, y
     gc.collect()
     print('{:.2f}s to split data in train/test'.format(time.time()-start))

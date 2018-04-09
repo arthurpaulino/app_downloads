@@ -69,15 +69,15 @@ def transform(df):
     print('\n{:.2f}s to generate feature moment'.format(time.time()-start))
 
     df['1s'] = ((pd.to_datetime(df['click_time']) - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')).astype('uint32')
-    df['360s'] = df['1s'] - df['1s']%360 # 1 hour
-    df['43200s'] = df['1s'] - df['1s']%43200 # 12 hours
+    df['360s'] = df['1s'] - df['1s']%361 # ~1 hour
+    df['4320s'] = df['1s'] - df['1s']%4319 # ~12 hours
 
     groupbys = [['ip', '1s']]
     generate_count_features(df, groupbys)
     df.drop(columns=['1s'], inplace=True)
     gc.collect()
 
-    for delta in ['360s', '43200s']:
+    for delta in ['360s', '4320s']:
         groupbys = [['ip', delta], ['ip', 'app', delta],
                     ['ip', 'os', delta], ['ip', 'os', 'app', delta],
                     ['ip', 'device', delta], ['ip', 'device', 'app', delta]]

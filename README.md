@@ -6,9 +6,13 @@ o projeto é composto por 3 módulos principais:
 
 * `process_data.py` é responsável pelo feature engineering a partir dos dados originais localizados na pasta `input`, gerando dados processados na pasta `intermediary`
 
-* `train_model.py` utiliza o conjunto de dados processados da pasta `intermediary` e gera um modelo xgboost treinado e o seu gráfico de fscores das features, também na pasta `intermediary`
+* `train_xgb.py` utiliza o conjunto de dados processados da pasta `intermediary` e gera um modelo xgboost treinado e o seu gráfico de fscores das features, também na pasta `intermediary`
 
-* `make_predictions.py` carrega o modelo da pasta `intermediary` e realiza as predições para os dados de teste processados, gerando um arquivo `submission_X.csv` na pasta `output` a ser submetido à avaliação competitiva
+* `train_xgb.py` utiliza o conjunto de dados processados da pasta `intermediary` e gera um modelo random forest treinado, também na pasta `intermediary`
+
+* `predict_xgb.py` carrega o modelo `xgb` da pasta `intermediary` e realiza as predições para os dados de teste processados, gerando um arquivo `submission_xgb_<timestamp>.csv` na pasta `output` a ser submetido à avaliação competitiva
+
+* `predict_rfc.py` carrega o modelo `rfc` da pasta `intermediary` e realiza as predições para os dados de teste processados, gerando um arquivo `submission_rfc_<timestamp>.csv` na pasta `output` a ser submetido à avaliação competitiva
 
 ## parâmetros reguláveis
 
@@ -16,13 +20,13 @@ o projeto é composto por 3 módulos principais:
 
   * `data_perc` especifica a fração do conjunto de treinamento que será utilizada para o processamento
 
-* `train_model.py` possui as variáveis `data_perc` e `use_gpu`
+* `train_xgb.py` e `train_rfc.py` possuem a variável `data_perc`
 
   * `data_perc` especifica a fração do conjunto de treinamento **processado** que será utilizada para o treinamento do modelo
 
-  * `use_gpu` indica se o treinamento será realizado com o auxílio de uma _gpu_
+* `train_xgb.py` possui a variável `use_gpu`
 
-  * `use_validation` indica se o treinamento será executado com o acompanhamento de um conjunto de validação
+  * `use_gpu` indica se o treinamento será realizado com o auxílio de uma *gpu*
 
 ## data story
 
