@@ -3,7 +3,7 @@ import numpy as np
 import time
 import gc
 
-data_perc = 0.2
+data_perc = 0.5
 
 raw_start = time.time()
 
@@ -68,26 +68,10 @@ def transform(df):
     df['moment'] = (60*datetimes.dt.hour + datetimes.dt.minute).astype('uint16')
     print('\n{:.2f}s to generate feature moment'.format(time.time()-start))
 
-    df['1s'] = ((pd.to_datetime(df['click_time']) - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')).astype('uint32')
-    df['360s'] = df['1s'] - df['1s']%361 # ~1 hour
-    df['4320s'] = df['1s'] - df['1s']%4319 # ~12 hours
-
-    groupbys = [['ip', '1s']]
-    generate_count_features(df, groupbys)
-    df.drop(columns=['1s'], inplace=True)
-    gc.collect()
-
-    for delta in ['360s', '4320s']:
-        groupbys = [['ip', delta], ['ip', 'app', delta],
-                    ['ip', 'os', delta], ['ip', 'os', 'app', delta],
-                    ['ip', 'device', delta], ['ip', 'device', 'app', delta]]
-        generate_count_features(df, groupbys)
-        df.drop(columns=[delta], inplace=True)
-        gc.collect()
-
     groupbys = [['ip'], ['ip', 'app'],
                 ['ip', 'os'], ['ip', 'os', 'app'],
                 ['ip', 'device'], ['ip', 'device', 'app'],
+                ['ip', 'os', 'device'], ['ip', 'os', 'device', 'app'],
                 ['ip', 'channel'], ['ip', 'channel', 'app']]
     generate_count_features(df, groupbys)
 
