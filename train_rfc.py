@@ -56,7 +56,6 @@ if use_validation:
     print('{:.2f}s to train model'.format(time.time()-start))
     
     y_model = model.predict_proba(X_test)
-    dvalid = xgb.DMatrix(X_test, y_test)
     print('roc auc score: {:.4f}'.format(roc_auc_score(y_model, y_test)))
     del X_test, y_test, y_model
     gc.collect()

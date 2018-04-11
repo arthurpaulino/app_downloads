@@ -8,7 +8,7 @@ import gc
 
 data_perc = 1.0
 use_gpu = False
-use_validation = False
+use_validation = True
 
 raw_start = time.time()
 
